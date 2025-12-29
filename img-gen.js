@@ -1,43 +1,41 @@
-const images = document.querySelector('.images');
+const imagesContainer = document.querySelector('.images');
 const button = document.querySelector('button');
 const inp = document.getElementById('inp');
 
-const getImages = async () => {
+button.addEventListener('click', () => {
     const text = inp.value.trim();
-    if (text === "") return alert("Please enter a prompt!");
+    if (text === "") return alert("Please enter a word!");
 
-    button.textContent = "Generating...";
+    // 1. UI Feedback
+    button.textContent = "Loading...";
     button.disabled = true;
-    images.innerHTML = ""; 
+    imagesContainer.innerHTML = "<p style='color: white;'>Searching for " + text + "...</p>"; 
 
-    for (let i = 0; i < 3; i++) {
-        const container = document.createElement('div');
-        const img = document.createElement('img');
+    // 2. Dynamic Image Link
+    const img = new Image();
+    
+    // Hesta3dem link "Flickr" - da bey-shouf el-kelma f-el-URL w y-geeb sora la-ye2a
+    // We add a random number (seed) to make sure it changes every time
+    const randomSeed = Math.floor(Math.random() * 1000);
+    const imageUrl = `https://loremflickr.com/500/500/${encodeURIComponent(text)}?random=${randomSeed}`;
+
+    img.onload = () => {
+        imagesContainer.innerHTML = ""; // Clear el-text
+        img.style.width = "100%";
+        img.style.borderRadius = "15px";
+        img.style.boxShadow = "0 10px 20px rgba(0,0,0,0.4)";
+        imagesContainer.appendChild(img);
         
-       
-        const cleanPrompt = encodeURIComponent(text);
-        const randomSeed = Math.floor(Math.random() * 99999);
-        
-     
-        const imageUrl = `https://image.pollinations.ai/prompt/${cleanPrompt}?seed=${randomSeed}&width=512&height=512&nologo=true`;
-        
-        img.src = imageUrl;
-        img.alt = text;
+        button.textContent = "Find Image";
+        button.disabled = false;
+    };
 
-        img.onload = () => {
-            
-            button.textContent = "Generate";
-            button.disabled = false;
-        };
+    img.onerror = () => {
+        imagesContainer.innerHTML = "<p style='color: red;'>Not found. Try another word!</p>";
+        button.textContent = "Find Image";
+        button.disabled = false;
+    };
 
-        img.onerror = () => {
-            console.error("Image failed to load");
-            button.textContent = "Generate";
-            button.disabled = false;
-        };
-
-        container.appendChild(img);
-        images.appendChild(container);
-    }
-
-};
+    // 3. Start Loading
+    img.src = imageUrl;
+});
